@@ -99,6 +99,41 @@ $(document).ready(function() {
             x_accessor: 'date',
             y_accessor: 'value'
         })
+        
+        //linked multi-line charts
+        moz_chart({
+            title:"Multi-line Linked",
+            description: "Demoing linked multi-line charts.",
+            data: data,
+            width: torso.width,
+            height: torso.height,
+            right: torso.right,
+            target: '#linked_multi1',
+            linked: true,
+            x_accessor: 'date',
+            y_accessor: 'value'
+        })
+    })
+    
+    
+    d3.json('data/fake_users3.json', function(data) {  
+        for(var i=0;i<data.length;i++) {
+            data[i] = convert_dates(data[i]);
+        }
+ 
+        //linked multi-line charts
+        moz_chart({
+            title:"Multi-line Linked 2",
+            description: "Demoing linked multi-line charts.",
+            data: data,
+            width: torso.width,
+            height: torso.height,
+            right: torso.right,
+            target: '#linked_multi2',
+            linked: true,
+            x_accessor: 'date',
+            y_accessor: 'value'
+        })
     })
 
     d3.json('data/confidence_band.json', function(data) {
@@ -312,7 +347,7 @@ $(document).ready(function() {
             x_accessor: 'date',
             y_accessor: 'value'
         })
-
+        
         moz_chart({
             title: "Small Text",
             description: "By adding small_text:true to the args list, we can force the use of smaller axis text regardless of the width or height",
@@ -418,6 +453,7 @@ $(document).ready(function() {
             y_accessor: 'y'
         })
     })
+    
     d3.json('data/multiline.json', function(data) {
         data = convert_dates(data);
         
