@@ -233,12 +233,12 @@ function xAxis(args) {
         var years = d3.time.years(min_x, max_x);
 
         if (years.length == 0){
-            var first_tick = args.scales.X.ticks(args.xax_tick)[0];
+            var first_tick = args.scales.X.ticks(args.xax_count)[0];
             years = [first_tick];
 
         }
 
-        //apend year marker to x-axis group
+        //append year marker to x-axis group
         g = g.append('g')
             .classed('year-marker', true)
             .classed('year-marker-small', args.use_small_class); 
@@ -256,7 +256,7 @@ function xAxis(args) {
             .data(years).enter()
                 .append('text')
                     .attr('x', args.scales.X)
-                    .attr('y', args.height - args.bottom + args.buffer + args.xax_tick + 14)
+                    .attr('y', args.height - args.buffer + args.xax_tick)
                     .attr('dy', args.use_small_class ? -3 : (args.y_extended_ticks) ? -6 : 0 )
                     .attr('text-anchor', 'middle')
                     .text(function(d) {
@@ -747,6 +747,7 @@ charts.line = function(args) {
                             if(args.linked) {
                                 var v = d[args.x_accessor];
                                 var formatter = d3.time.format('%Y-%m-%d');
+                                
                                 return 'line' + d['line_id'] + '-color ' + 'roll_' + formatter(v);
                             }
                             else {
@@ -766,12 +767,17 @@ charts.line = function(args) {
             g.selectAll('.rollover-rects')
                 .data(args.data[0]).enter()
                     .append('rect')
-                        .attr('class', function(d) {
+                        .attr('class', function(d, i) {
                             if(args.linked) {
                                 var v = d[args.x_accessor];
                                 var formatter = d3.time.format('%Y-%m-%d');
-
-                                return 'line' + line_id + '-color ' + 'roll_' + formatter(v);
+                                
+                                //only format when y-axis is date
+                                var id = (typeof v === 'number')
+                                        ? i
+                                        : formatter(v);
+                                        
+                                return 'line' + line_id + '-color ' + 'roll_' + id;
                             }
                             else {
                                 return 'line' + line_id + '-color';
@@ -850,8 +856,13 @@ charts.line = function(args) {
                 var v = d[args.x_accessor];
                 var formatter = d3.time.format('%Y-%m-%d');
 
+                //only format when y-axis is date
+                var id = (typeof v === 'number')
+                        ? i
+                        : formatter(v);
+                                        
                 //trigger mouseover on matching line in .linked charts
-                d3.selectAll('.line' + d['line_id'] + '-color.roll_' + formatter(v))
+                d3.selectAll('.line' + d['line_id'] + '-color.roll_' + id)
                     .each(function(d, i) {
                         d3.select(this).on('mouseover')(d,i);
                 })
@@ -916,7 +927,12 @@ charts.line = function(args) {
                 var v = d[args.x_accessor];
                 var formatter = d3.time.format('%Y-%m-%d');
 
-                d3.selectAll('.roll_' + formatter(v))
+                //only format when y-axis is date
+                var id = (typeof v === 'number')
+                        ? i
+                        : formatter(v);
+                                        
+                d3.selectAll('.roll_' + id)
                     .each(function(d, i){
                         d3.select(this).on('mouseout')(d);
                 });
