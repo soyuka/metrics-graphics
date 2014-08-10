@@ -5,9 +5,9 @@
     <meta property="og:description" content="MetricsGraphics.js is a library optimized 
         for visualizing and laying out time-series data. It provides a simple way to produce 
         common types of charts in a principled, consistent and responsive way." />
-    <meta property="og:image" content="http://mozilla.github.io/metrics-graphics/images/og-logo.png" />
+    <meta property="og:image" content="http://metricsgraphicsjs.org/images/og-logo.png" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="http://mozilla.github.io/metrics-graphics/" />
+    <meta property="og:url" content="http://metricsgraphicsjs.org/" />
     <meta property="og:site_name" content="MetricsGraphics.js" />
     
     <title>MetricsGraphics.js</title>
@@ -77,7 +77,6 @@
                 <div id='linked_multi1'></div>
                 <div id='linked_multi2'></div>
                 <div id='glorious_chart' class='missing'></div>
-                <div id='histogram'></div>
             </div>
             <div id='trunk'>
                 <div class='row trunk-section'>
@@ -237,6 +236,22 @@
                     </div>
                 </div>
 
+                <div class='row trunk-section'>
+                    <div class='col-lg-4'>
+                        <h2 class='trunk-title'>Histogram</h2>
+                        <p>We use histograms a lot, particularly in Telemetry. We'll be 
+                        adding histogram binning as a helper soon using an algorithm such as 
+                        <a href="http://en.wikipedia.org/wiki/Freedman%E2%80%93Diaconis_rule">
+                        this one</a>.
+                        </p>
+                    </div>
+                    <div class='col-lg-8'>
+                        <div class='row'>
+                            <div class='col-lg-12 gr' id='histogram'></div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class='row trunk-section'>
                     <div class='col-lg-4'>
                         <h2 class='trunk-title'>Scatterplots</h2>
