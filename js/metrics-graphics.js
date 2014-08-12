@@ -64,6 +64,16 @@ function moz_chart() {
         custom_line_color_map: [],     // allows arbitrary mapping of lines to colors, e.g. [2,3] will map line 1 to color 2 and line 2 to color 3
         max_data_size: null            // explicitly specify the the max number of line series, for use with custom_line_color_map
     }
+    moz.defaults.histogram = {
+        rollover_callback: function(d, i) {
+            $('#histogram svg .active_datapoint')
+                .html('Frequency Count: ' + d.y);
+        },
+        binned: false,
+        processed_x_accessor: 'x',
+        processed_y_accessor: 'y',
+        processed_dx_accessor: 'dx'
+    }
 
     var args = arguments[0];
     if (!args) { args = {}; }
@@ -83,6 +93,7 @@ function moz_chart() {
         charts.point(args).markers().mainPlot().rollover();
     }
     else if(args.chart_type == 'histogram'){
+        args = merge_with_defaults(args, moz.defaults.histogram);
         charts.histogram(args).markers().mainPlot().rollover();
     }
     else {
@@ -93,14 +104,12 @@ function moz_chart() {
 }
 
 function chart_title(args) {
-    var defaults = {
-        target: null,
-        title: null,
-        description: null
-    };
-    var args = arguments[0];
-    if (!args) { args = {}; }
-    args = merge_with_defaults(args, defaults);
+    //is chart title different than existing, if so, clear the fine 
+    //gentleman, otherwise, move along
+    if(args.title && args.title !== $(args.target + ' h2.chart_title').text())
+        $(args.target + ' h2.chart_title').remove();
+    else
+        return;
     
     if (args.target && args.title) {
         //only show question mark if there's a description
@@ -108,7 +117,7 @@ function chart_title(args) {
             ? '<i class="fa fa-question-circle fa-inverse"></i>'
             : '';
     
-        $(args.target).append('<h2 class="chart_title">' 
+        $(args.target).prepend('<h2 class="chart_title">' 
             + args.title + optional_question_mark + '</h2>');
             
         //activate the question mark if we have a description
@@ -450,13 +459,13 @@ function yAxis(args) {
     return this;
 }
 
-function init(args) {
+function raw_data_transformation(args){
     //do we need to turn json data to 2d array?
+
     if(!$.isArray(args.data[0]))
         args.data = [args.data];
+    //
 
-    // this is how we're dealing with passing in a single array of data, 
-    // but with the intention of using multiple values for multilines, etc.
     if ($.isArray(args.y_accessor)){
         args.data = args.data.map(function(_d){
             return args.y_accessor.map(function(ya){
@@ -470,7 +479,7 @@ function init(args) {
         args.y_accessor = 'multiline_y_accessor';
     }
 
-    //sort x-axis
+    //sort x-axis data.
     if (args.chart_type == 'line'){
         for(var i=0; i<args.data.length; i++) {
             args.data[i].sort(function(a, b) {
@@ -478,7 +487,90 @@ function init(args) {
             });
         }
     }
-        
+    return this
+}
+
+function process_line(args){
+    return this;
+}
+
+function process_point(args){
+    return this;
+}
+
+function process_histogram(args){
+    // if args.binned=False, then we need to bin the data appropriately.
+    // if args.binned=True, then we need to make sure to compute the relevant computed data.
+    // the outcome of either of these should be something in args.computed_data.
+    // the histogram plotting function will be looking there for the data to plot.
+
+    // we need to compute an array of objects.
+    // each object has an x, y, and dx.
+
+    // histogram data is always single dimension
+    var our_data = args.data[0];
+    var extracted_data;
+    if (args.binned==false){
+        // use d3's built-in layout.histogram functionality to compute what you need.
+
+        if (typeof(our_data[0]) == 'object'){
+            // we are dealing with an array of objects. Extract the data value of interest.
+            extracted_data = our_data
+                .map(function(d){ 
+                    return d[args.x_accessor];
+                });
+        } else if (typeof(our_data[0]) == 'number'){
+            // we are dealing with a simple array of numbers. No extraction needed.
+            extracted_data = our_data;
+        }
+
+        args.processed_data = d3.layout.histogram()
+            (extracted_data)
+            .map(function(d){
+                // extract only the data we need per data point.
+                return {'x': d['x'], 'y':d['y'], 'dx': d['dx']};
+            })
+    } else {
+        // here, we just need to reconstruct the array of objects
+        // take the x accessor and y accessor.
+        // pull the data as x and y. y is count.
+
+        args.processed_data = our_data.map(function(d){
+            return {'x': d[args.x_accessor], 'y': d[args.y_accessor]}
+        });
+        var this_pt;
+        var next_pt;
+        // we still need to compute the dx component for each data point
+        for (var i=0; i < args.processed_data.length; i++){
+            this_pt = args.processed_data[i];
+            if (i == args.processed_data.length-1){
+                this_pt.dx = args.processed_data[i-1].dx;
+            } else {
+                next_pt = args.processed_data[i+1];
+                this_pt.dx = next_pt.x - this_pt.x;
+            }
+        }
+    }
+    args.data = [args.processed_data];
+    args.x_accessor = args.processed_x_accessor;
+    args.y_accessor = args.processed_y_accessor;
+    return this;
+}
+
+function init(args) {
+    var defaults = {
+        target: null,
+        title: null,
+        description: null
+    };
+    
+    var args = arguments[0];
+    if (!args) { args = {}; }
+    args = merge_with_defaults(args, defaults);
+
+    //this is how we're dealing with passing in a single array of data, 
+    //but with the intention of using multiple values for multilines, etc.
+    
     //do we have a time_series?
     if($.type(args.data[0][0][args.x_accessor]) == 'date') {
         args.time_series = true;
@@ -489,10 +581,8 @@ function init(args) {
     
     var linked;
 
-    //add chart's title, svg, if they don't already exist
+    //add svg if it doesn't already exist
     if($(args.target).is(':empty')) {
-        chart_title(args);
-    
         //add svg
         d3.select(args.target)
             .append('svg')
@@ -501,6 +591,9 @@ function init(args) {
                 .attr('height', args.height);
     }
     
+    //add chart title if it's different than existing one
+    chart_title(args);
+    
     //we kind of need axes in all cases
     args.use_small_class = args.height - args.top - args.bottom - args.buffer 
             <= args.small_height_threshold 
@@ -508,10 +601,9 @@ function init(args) {
             <= args.small_width_threshold 
         || args.small_text;
 
-
+    //draw axes
     xAxis(args);
     yAxis(args);
-
 
     //if we're updating an existing chart and we have fewer lines than
     //before, remove the outdated lines, e.g. if we had 3 lines, and we're calling
@@ -625,6 +717,8 @@ charts.line = function(args) {
     this.args = args;
 
     this.init = function(args) {
+        raw_data_transformation(args);
+        process_line(args);
         init(args);
         return this;
     }
@@ -1025,6 +1119,8 @@ charts.histogram = function(args) {
     this.args = args;
 
     this.init = function(args) {
+        raw_data_transformation(args);
+        process_histogram(args);
         init(args);
         return this;
     }
@@ -1158,7 +1254,7 @@ charts.histogram = function(args) {
             }
 
             //highlight active bar
-            $('.histogram .bar :eq(' + i + ')')
+            $(args.target + ' svg .bar :eq(' + i + ')')
                 .css('opacity', 0.8);
 
             //update rollover text
@@ -1208,8 +1304,9 @@ charts.point = function(args) {
     this.args = args;
 
     this.init = function(args) {
+        raw_data_transformation(args);
+        process_point(args);
         init(args);
-
         return this;
     }
 
@@ -1342,7 +1439,6 @@ charts.missing = function(args) {
             })  
         }
 
-        
         return this;
     }
     
@@ -1350,6 +1446,8 @@ charts.missing = function(args) {
     return this;
 }
 
+
+//a set of helper functions, some that we've written, others that we've borrowed
 
 function modify_time_period(data, past_n_days) {
     //splice time period
@@ -1364,7 +1462,6 @@ function modify_time_period(data, past_n_days) {
     return data_spliced;
 }
 
-
 function convert_dates(data, x_accessor) {
     data = data.map(function(d) {
         var fff = d3.time.format('%Y-%m-%d');
@@ -1374,7 +1471,6 @@ function convert_dates(data, x_accessor) {
 
     return data;
 }
-
 
 var each = function(obj, iterator, context) {
     // yanked out of underscore
@@ -1415,7 +1511,6 @@ function number_of_values(data, accessor, value) {
     return values.length;
 }
 
-
 function has_values_below(data, accessor, value) {
     var values = data.filter(function(d){
         return d[accessor] <= value;
@@ -1428,7 +1523,6 @@ function has_values_below(data, accessor, value) {
 function has_too_many_zeros(data, accessor, zero_count) {
     return number_of_values(data, accessor, 0) >= zero_count;
 }
-
 
 //deep copy
 //http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
@@ -1463,7 +1557,6 @@ function clone(obj) {
     
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
-
 
 //give us the difference of two int arrays
 //http://radu.cotescu.com/javascript-diff-function/
