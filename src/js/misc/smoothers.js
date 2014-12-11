@@ -1,5 +1,10 @@
+<<<<<<< HEAD:src/js/misc/smoothers.js
 function add_ls(args) {
     var svg = d3.select($(args.target).find('svg').get(0));
+=======
+function add_ls(args){
+    var svg = d3.select(document.querySelector(args.target + ' svg'));
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/misc/smoothers.js
     var data = args.data[0];
     var min_x = args.scales.X.ticks(args.xax_count)[0];
     var max_x = args.scales.X.ticks(args.xax_count)[args.scales.X.ticks(args.xax_count).length - 1];
@@ -14,8 +19,13 @@ function add_ls(args) {
         .attr('class', 'mg-least-squares-line');
 }
 
+<<<<<<< HEAD:src/js/misc/smoothers.js
 function add_lowess(args) {
     var svg = d3.select($(args.target).find('svg').get(0));
+=======
+function add_lowess(args){
+    var svg = d3.select(document.querySelector(args.target + ' svg'));
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/misc/smoothers.js
     var lowess = args.lowess_line;
 
     var line = d3.svg.line()

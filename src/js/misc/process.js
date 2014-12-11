@@ -1,5 +1,6 @@
 function raw_data_transformation(args) {
     'use strict';
+<<<<<<< HEAD:src/js/misc/process.js
 
     // We need to account for a few data format cases:
     // 1. [{key:__, value:__}, ...]                              // unnested obj-arrays
@@ -28,6 +29,20 @@ function raw_data_transformation(args) {
                 return _d.map(function(di) {
                     di = MG.clone(di);
                     if (di[ya] === undefined) {
+=======
+    //do we need to turn json data to 2d array?
+
+    if(!isArray(args.data[0]))
+        args.data = [args.data];
+    //
+
+    if (isArray(args.y_accessor)){
+        args.data = args.data.map(function(_d){
+            return args.y_accessor.map(function(ya){
+                return _d.map(function(di){
+                    di = clone(di);
+                    if (di[ya]==undefined){
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/misc/process.js
                         return undefined;
                     }
                     di['multiline_y_accessor'] = di[ya];
@@ -56,7 +71,11 @@ function raw_data_transformation(args) {
 function process_line(args) {
     'use strict';
     //do we have a time-series?
+<<<<<<< HEAD:src/js/misc/process.js
     var is_time_series = ($.type(args.data[0][0][args.x_accessor]) === 'date')
+=======
+    var is_time_series = (args.data[0][0][args.x_accessor] instanceof Date)
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/misc/process.js
             ? true
             : false;
 
@@ -94,8 +113,13 @@ function process_line(args) {
 
                 //check to see if we already have this date in our data object
                 var existing_o = null;
+<<<<<<< HEAD:src/js/misc/process.js
                 $.each(args.data[i], function(i, val) {
                     if (Date.parse(val[args.x_accessor]) === Date.parse(new Date(d))) {
+=======
+                args.data[i].forEach(function(val, i) {
+                    if(Date.parse(val.date) == Date.parse(new Date(d))) {
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/misc/process.js
                         existing_o = val;
 
                         return false;

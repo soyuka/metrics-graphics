@@ -1,12 +1,21 @@
 function markers(args) {
     'use strict';
-    var svg = d3.select($(args.target).find('svg').get(0));
+    var svg = d3.select(document.querySelector(args.target + ' svg'));
     var gm;
     var gb;
 
+<<<<<<< HEAD:src/js/common/markers.js
     //remove existing markers and baselines
     $(args.target).find('svg .mg-markers').remove();
     $(args.target).find('svg .mg-baselines').remove();
+=======
+    if(args.markers) {
+        var oldMarkers = document.querySelector(args.target + ' svg .markers');
+
+        if(oldMarkers) {
+          oldMarkers.parentNode.removeChild(oldMarkers); 
+        }
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/common/markers.js
 
     if (args.markers) {
         gm = svg.append('g')

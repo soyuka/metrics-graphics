@@ -1,8 +1,14 @@
 function y_rug(args) {
     'use strict';
+<<<<<<< HEAD:src/js/common/y_axis.js
     var svg = mg_get_svg_child_of(args.target);
     var buffer_size = args.chart_type === 'point'
         ? args.buffer / 2
+=======
+    var svg = d3.select(document.querySelector(args.target + ' svg'));
+    var buffer_size = args.chart_type == 'point' 
+        ? args.buffer / 2 
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/common/y_axis.js
         : args.buffer * 2 / 3;
 
     var all_data = [];
@@ -41,12 +47,17 @@ function y_rug(args) {
 }
 
 function y_axis(args) {
+<<<<<<< HEAD:src/js/common/y_axis.js
     if (!args.processed) {
         args.processed = {};
     }
 
     var svg = mg_get_svg_child_of(args.target);
     var $svg = $($(args.target).find('svg').get(0));
+=======
+    var $svg = document.querySelector(args.target + ' svg');
+    var svg = d3.select($svg);
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/common/y_axis.js
     var g;
 
     var min_y,
@@ -169,7 +180,15 @@ function y_axis(args) {
     }
 
     //remove the old y-axis, add new one
+<<<<<<< HEAD:src/js/common/y_axis.js
     $svg.find('.mg-y-axis').remove();
+=======
+    var yaxis = $svg.querySelector('.y-axis');
+
+    if(yaxis) {
+      yaxis.parentNode.removeChild(yaxis);
+    }
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/common/y_axis.js
 
     if (!args.y_axis) {
         return this;
@@ -226,9 +245,15 @@ function y_axis(args) {
 
     //is our data object all ints?
     var data_is_int = true;
+<<<<<<< HEAD:src/js/common/y_axis.js
     $.each(args.data, function(i, d) {
         $.each(d, function(i, d) {
             if (d[args.y_accessor] % 1 !== 0) {
+=======
+    args.data.forEach(function(d, i) {
+        d.forEach(function(d, i) {
+            if(d[args.y_accessor] % 1 !== 0) {
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/common/y_axis.js
                 data_is_int = false;
                 return false;
             }
@@ -287,7 +312,17 @@ function y_axis(args) {
 }
 
 function y_axis_categorical(args) {
+<<<<<<< HEAD:src/js/common/y_axis.js
     // first, come up with y_axis
+=======
+    // first, come up with y_axis 
+    var svg_height = args.height;
+    if (args.chart_type == 'bar' && svg_height == null){
+      //@todo ? no code here
+      // we need to set a new height variable.
+    }
+
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/common/y_axis.js
     args.scales.Y = d3.scale.ordinal()
         .domain(args.categorical_variables)
         .rangeRoundBands([args.height - args.bottom - args.buffer, args.top], args.padding_percentage, args.outer_padding_percentage);
@@ -296,11 +331,23 @@ function y_axis_categorical(args) {
         return args.scales.Y(di[args.y_accessor]);
     };
 
+<<<<<<< HEAD:src/js/common/y_axis.js
     var svg = mg_get_svg_child_of(args.target);
     var $svg = $($(args.target).find('svg').get(0));
 
     //remove the old y-axis, add new one
     $svg.find('.mg-y-axis').remove();
+=======
+    var $svg = document.querySelector(args.target + ' svg');
+    var svg = d3.select($svg);
+
+    //remove the old y-axis, add new one
+    var yaxis = $svg.querySelector('.y-axis');
+
+    if(yaxis) {
+      yaxis.parentNode.removeChild(yaxis);
+    }
+>>>>>>> fix(): Remove jquery occurences in common and misc:src/common/y_axis.js
 
     var g = svg.append('g')
         .classed('mg-y-axis', true)
