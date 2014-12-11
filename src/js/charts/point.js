@@ -8,6 +8,8 @@ charts.point = function(args) {
         init(args);
         x_axis(args);
         y_axis(args);
+        this.$svg = document.querySelector(args.target + ' svg')
+        this.svg = d3.select(this.$svg)
         return this;
     };
 
@@ -21,6 +23,7 @@ charts.point = function(args) {
     };
 
     this.mainPlot = function() {
+<<<<<<< HEAD:src/js/charts/point.js
         var svg = mg_get_svg_child_of(args.target);
         var $svg = $($(args.target).find('svg').get(0));
         var g;
@@ -31,6 +34,19 @@ charts.point = function(args) {
         // plot the points, pretty straight-forward
         g = svg.append('g')
             .classed('mg-points', true);
+=======
+        var g;
+
+        //remove the old points, add new one
+        var oldPoints = this.$svg.querySelector('.points');
+
+        if(oldPoints)
+          oldPoints.parentNode.removeChild(oldPoints);
+        
+        // plot the points, pretty straight-forward
+        g = this.svg.append('g')
+            .classed('points', true);
+>>>>>>> fix(charts): Removed jquery occurences in charts:src/charts/point.js
 
         var pts = g.selectAll('circle')
             .data(args.data[0])
@@ -57,6 +73,7 @@ charts.point = function(args) {
     };
 
     this.rollover = function() {
+<<<<<<< HEAD:src/js/charts/point.js
         var svg = mg_get_svg_child_of(args.target);
         var $svg = $($(args.target).find('svg').get(0));
 
@@ -69,6 +86,25 @@ charts.point = function(args) {
         //add rollover text
         svg.append('text')
             .attr('class', 'mg-active-datapoint')
+=======
+
+        [
+          //remove the old rollovers if they already exist
+          this.$svg.querySelector('.voronoi'),
+          //remove the old rollover text and circle if they already exist
+          this.$svg.querySelector('.active_datapoint')
+        ].forEach(function(e, i) {
+        
+          if(!e)
+            return;
+
+          e.parentNode.removeChild(e);
+        })
+
+        //add rollover text
+        this.svg.append('text')
+            .attr('class', 'active_datapoint')
+>>>>>>> fix(charts): Removed jquery occurences in charts:src/charts/point.js
             .attr('xml:space', 'preserve')
             .attr('x', args.width - args.right)
             .attr('y', args.top / 2)
@@ -80,8 +116,13 @@ charts.point = function(args) {
             .y(args.scalefns.yf)
             .clipExtent([[args.buffer, args.buffer], [args.width - args.buffer, args.height - args.buffer]]);
 
+<<<<<<< HEAD:src/js/charts/point.js
         var paths = svg.append('g')
             .attr('class', 'mg-voronoi');
+=======
+        var paths = this.svg.append('g')
+            .attr('class', 'voronoi');
+>>>>>>> fix(charts): Removed jquery occurences in charts:src/charts/point.js
 
         paths.selectAll('path')
             .data(voronoi(args.data[0]))
@@ -105,7 +146,11 @@ charts.point = function(args) {
     };
 
     this.rolloverOn = function(args) {
+<<<<<<< HEAD:src/js/charts/point.js
         var svg = mg_get_svg_child_of(args.target);
+=======
+        var svg = this.svg;
+>>>>>>> fix(charts): Removed jquery occurences in charts:src/charts/point.js
 
         return function(d, i) {
             svg.selectAll('.mg-points circle')
@@ -161,7 +206,11 @@ charts.point = function(args) {
     };
 
     this.rolloverOff = function(args) {
+<<<<<<< HEAD:src/js/charts/point.js
         var svg = mg_get_svg_child_of(args.target);
+=======
+        var svg = this.svg;
+>>>>>>> fix(charts): Removed jquery occurences in charts:src/charts/point.js
 
         return function(d,i) {
             if (args.linked && globals.link) {
